@@ -3,7 +3,10 @@ import cv2, numpy as np
 from PIL import Image, ExifTags
 
 AI_TAGS = ("midjourney", "dall-e", "dall·e", "stable diffusion", "firefly", "comfyui", "sdxl", "imagen", "automatic1111", "c2pa", "openai")
-FACE = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+try:
+    FACE = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml") if hasattr(cv2, "CascadeClassifier") else None
+except Exception:
+    FACE = None
 _model = None
 
 def sig(name, value, suspicion, weight, note):
@@ -45,7 +48,12 @@ def analyze_frame(bgr):
     gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
     hf = spectral_ratio(gray)
     sigs.append(sig("High-frequency spectrum ratio", hf, abs(hf - 0.045) / 0.04 - 0.5, 1.0, "Generated images often show atypical frequency energy (weak signal, content dependent)."))
-    faces = FACE.detectMultiScale(gray, 1.1, 5, minSize=(48, 48))
+    faces = []
+    if FACE is not None:
+        try:
+            faces = FACE.detectMultiScale(gray, 1.1, 5, minSize=(48, 48))
+        except Exception:
+            faces = []
     if len(faces):
         x, y, w, h = max(faces, key=lambda f: f[2]*f[3])
         face_s = cv2.Laplacian(gray[y:y+h, x:x+w], cv2.CV_64F).var()

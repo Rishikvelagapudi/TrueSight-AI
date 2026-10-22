@@ -1,8 +1,8 @@
-fastapi
-uvicorn[standard]
-python-multipart
-opencv-python-headless
-numpy
-pillow
-reportlab
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+python-multipart>=0.0.6
+opencv-python-headless>=4.8.0.76,<5.0.0.0
+numpy>=1.24.0,<2.3.0
+pillow>=10.0.0
+reportlab>=4.0.0
 # optional: torch (set TRUESIGHT_MODEL to a TorchScript forensic model path)
