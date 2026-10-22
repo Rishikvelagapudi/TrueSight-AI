@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+python-multipart
+opencv-python-headless
+numpy
+pillow
+reportlab
+# optional: torch (set TRUESIGHT_MODEL to a TorchScript forensic model path)
