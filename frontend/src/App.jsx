@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 
 const COLORS = {
-  "Likely Authentic": { bg: "#0d6832", light: "#e8f7ee", border: "#22c55e", text: "#0d6832", label: "NOT AI-GENERATED (AUTHENTIC)" },
-  "Inconclusive": { bg: "#b45309", light: "#fef3c7", border: "#f59e0b", text: "#92400e", label: "INCONCLUSIVE (UNCERTAIN)" },
-  "Likely AI-Generated or Manipulated": { bg: "#b91c1c", light: "#fee2e2", border: "#ef4444", text: "#991b1b", label: "AI-GENERATED / MANIPULATED" }
+  "AI": { bg: "#b91c1c", light: "#fee2e2", border: "#ef4444", text: "#991b1b", label: "AI" },
+  "Not AI": { bg: "#0d6832", light: "#e8f7ee", border: "#22c55e", text: "#0d6832", label: "Not AI" }
 };
 
 const SCAN_STEPS = [
@@ -294,13 +293,14 @@ function NationalMovingBorder() {
   );
 }
 
-function SuspicionGauge({ score }) {
+function SuspicionGauge({ score, verdict }) {
   const percent = Math.round(score * 100);
   const radius = 52;
   const stroke = 8;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score * circumference);
-  const color = score > 0.62 ? "#b91c1c" : score < 0.35 ? "#0d6832" : "#b45309";
+  const isAi = verdict ? verdict === "AI" : score >= 0.50;
+  const color = isAi ? "#b91c1c" : "#0d6832";
 
   return (
     <div className="gauge-container">
@@ -322,7 +322,7 @@ function SuspicionGauge({ score }) {
       </svg>
       <div className="gauge-content">
         <span className="gauge-number" style={{ color }}>{percent}%</span>
-        <span className="gauge-label">Suspicion</span>
+        <span className="gauge-label">{isAi ? "AI Suspicion" : "Authenticity"}</span>
       </div>
     </div>
   );
@@ -559,7 +559,7 @@ export default function App() {
   };
 
   const isVideo = file?.type.startsWith("video");
-  const verdictStyle = res ? (COLORS[res.verdict] || COLORS["Inconclusive"]) : null;
+  const verdictStyle = res ? (COLORS[res.verdict] || (res.verdict === "AI" ? COLORS["AI"] : COLORS["Not AI"])) : null;
 
   return (
     <div className="page-wrapper">
@@ -692,9 +692,12 @@ export default function App() {
               {/* Header Summary with Gauge and Verdict */}
               <div className="summary-card">
                 <div className="summary-left">
-                  <span className="verdict-chip" style={{ background: verdictStyle?.bg || "#000080" }}>
-                    {res.verdict}
-                  </span>
+                  <div className="verdict-header-row">
+                    <span className="verdict-label-text">RESULT:</span>
+                    <span className="verdict-chip" style={{ background: verdictStyle?.bg || (res.verdict === "AI" ? "#b91c1c" : "#0d6832") }}>
+                      {res.verdict}
+                    </span>
+                  </div>
                   <p className="summary-desc">{res.explanation}</p>
                   <div className="hash-row">
                     <span className="hash-label">SHA-256:</span>
@@ -705,7 +708,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="summary-right">
-                  <SuspicionGauge score={res.score} />
+                  <SuspicionGauge score={res.score} verdict={res.verdict} />
                 </div>
               </div>
 
@@ -798,17 +801,15 @@ export default function App() {
                   <AshokaChakra size={32} />
                   <div>
                     <span className="conclusion-tag">Official Determination</span>
-                    <h4 style={{ color: verdictStyle?.text || "#000080" }}>
-                      {res.ai_determination || verdictStyle?.label || "Forensic Conclusion"}
+                    <h4 style={{ color: verdictStyle?.text || (res.verdict === "AI" ? "#991b1b" : "#0d6832") }}>
+                      Result: {res.verdict}
                     </h4>
                   </div>
                 </div>
                 <p className="conclusion-text">
-                  {res.final_note || (res.verdict?.startsWith("Likely AI")
-                    ? "FINAL CONCLUSION: This media is classified as AI-GENERATED or MANIPULATED. Forensic analysis detected strong patterns indicative of synthetic generation or digital tampering."
-                    : res.verdict === "Likely Authentic"
-                    ? "FINAL CONCLUSION: This media is classified as NOT AI-GENERATED (AUTHENTIC). No substantial indicators of synthetic generation or tampering were detected."
-                    : "FINAL CONCLUSION: INCONCLUSIVE regarding whether this media is AI-generated or authentic. Forensic indicators are mixed or insufficient to make a definitive determination.")}
+                  {res.final_note || (res.verdict === "AI"
+                    ? "FINAL CONCLUSION: Result is AI. Forensic analysis detected synthetic generative patterns, frequency anomalies, or generative metadata signatures."
+                    : "FINAL CONCLUSION: Result is Not AI. Forensic analysis detected authentic optical sensor characteristics, natural noise distributions, and camera provenance.")}
                 </p>
               </div>
 

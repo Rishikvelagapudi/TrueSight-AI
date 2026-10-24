@@ -1263,16 +1263,31 @@ header p {
   flex: 1;
 }
 
+.verdict-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.verdict-label-text {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--navy-primary);
+}
+
 .verdict-chip {
   display: inline-block;
   color: #ffffff;
-  padding: 7px 16px;
+  padding: 6px 18px;
   border-radius: 20px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  margin-bottom: 12px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  margin-bottom: 0;
+  text-transform: uppercase;
 }
 
 .summary-desc {
